@@ -1,0 +1,6 @@
+# directories
+.venv
+
+# files
+*.env
+*.pyc
