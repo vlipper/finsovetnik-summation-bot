@@ -7,6 +7,7 @@ requires-python = ">=3.13"
 dependencies = [
     "aiohttp>=3.11.18",
     "beautifulsoup4>=4.13.4",
+    "litellm>=1.69.0",
 ]
 
 [tool.ruff]
