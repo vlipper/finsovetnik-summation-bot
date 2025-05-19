@@ -10,8 +10,6 @@ ARTICLE_TEMPLATE_URL = f"{ROOT_URL}?p={{}}"
 LOGIN_DATA = {"log": os.environ["SITE_USERNAME"], "pwd": os.environ["SITE_PASSWORD"]}
 HIDDEN_LOGIN_ATTRIBUTES = ["ihcaction", "ihc_login_nonce"]
 
-NUM_ARTICLES_IN_LIST = 10
-
 # llm related
 MODEL_NAME = "gpt-4.1-nano"
 SYSTEM_MESSAGE = """
@@ -21,3 +19,9 @@ SYSTEM_MESSAGE = """
 Не добавляй в аннотацию ничего лишнего и не делай выводы, которые не содержатся в статье.
 Часто статья может быть неполной или ссылаться на информацию, которой у тебя нет, но ты должен игнорировать эти огрехи.
 """.strip()
+
+# general
+NUM_ARTICLES_IN_LIST = 10
+DATABASE_URL = "sqlite+aiosqlite:///default.db"
+ARTICLE_MINING_INTERVAL = 60 * 1  # 5 min
+BOT_TOKEN = os.environ["BOT_TOKEN"]
