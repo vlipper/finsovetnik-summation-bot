@@ -5,9 +5,12 @@ description = "This is an telegram bot that parses website, summarizes its conte
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "aiogram>=3.20.0.post0",
     "aiohttp>=3.11.18",
+    "aiosqlite>=0.21.0",
     "beautifulsoup4>=4.13.4",
     "litellm>=1.69.0",
+    "sqlalchemy[asyncio]>=2.0.41",
 ]
 
 [tool.ruff]
