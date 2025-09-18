@@ -21,7 +21,7 @@ SYSTEM_MESSAGE = """
 """.strip()
 
 # general
-NUM_ARTICLES_IN_LIST = 10
-DATABASE_URL = "sqlite+aiosqlite:///default.db"
+NUM_ARTICLES_IN_LIST = 2
+DATABASE_URL = "sqlite:///default.db"
 ARTICLE_MINING_INTERVAL = 60 * 1  # 5 min
 BOT_TOKEN = os.environ["BOT_TOKEN"]

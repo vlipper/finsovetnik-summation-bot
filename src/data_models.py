@@ -1,29 +1,23 @@
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+import databases
+import ormar
+import sqlalchemy
 
 from src.constants import DATABASE_URL
 
-AsyncSessionMaker = async_sessionmaker[AsyncSession]
+base_ormar_config = ormar.OrmarConfig(
+    database=databases.Database(DATABASE_URL),
+    metadata=sqlalchemy.MetaData(),
+    engine=sqlalchemy.create_engine(DATABASE_URL),
+)
 
 
-class Database(DeclarativeBase):
-    pass
+class Chat(ormar.Model):
+    ormar_config = base_ormar_config.copy(tablename="chats")
+
+    chat_id: int = ormar.Integer(primary_key=True, autoincrement=False)
 
 
-class Chat(Database):
-    __tablename__ = "chats"
+class Article(ormar.Model):
+    ormar_config = base_ormar_config.copy(tablename="articles")
 
-    chat_id: Mapped[int] = mapped_column(primary_key=True)
-
-
-class Article(Database):
-    __tablename__ = "articles"
-
-    article_id: Mapped[int] = mapped_column(primary_key=True, index=True, unique=True)
-
-
-def create_db_engine_n_sessionmaker() -> tuple[AsyncEngine, AsyncSessionMaker]:
-    engine = create_async_engine(DATABASE_URL, echo=True)
-    session_maker = async_sessionmaker(engine)
-
-    return engine, session_maker
+    article_id: int = ormar.Integer(primary_key=True, autoincrement=False)
