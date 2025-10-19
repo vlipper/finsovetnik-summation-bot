@@ -7,10 +7,10 @@ from bs4 import BeautifulSoup, PageElement
 from src.constants import (
     ARTICLE_TEMPLATE_URL,
     ARTICLES_LIST_URL,
+    CATCH_UP_ARTICLES,
     HIDDEN_LOGIN_ATTRIBUTES,
     LOGIN_DATA,
     LOGIN_URL,
-    NUM_ARTICLES_IN_LIST,
 )
 from src.data_models import Article
 
@@ -61,7 +61,7 @@ async def gen_article_ids(http_session: ClientSession) -> AsyncIterator[str]:
         content = await response.text()
 
     page_element = BeautifulSoup(content, "html.parser")
-    for _ in range(NUM_ARTICLES_IN_LIST):
+    for _ in range(CATCH_UP_ARTICLES):
         page_element, article_id = _get_tag_attribute(page_element, "article", "id", id=True)
 
         # validate article id with regex
