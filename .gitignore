@@ -1,8 +1,7 @@
 # directories
-.venv
-.vscode
+.venv/
 
 # files
 *.env
 *.pyc
-*.db
+*.sqlite
