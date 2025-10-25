@@ -1,23 +1,15 @@
-import databases
-import ormar
-import sqlalchemy
+from piccolo.columns import Integer
+from piccolo.engine import SQLiteEngine
+from piccolo.table import Table
 
-from src.constants import DATABASE_URL
+from src.constants import DATABASE_PATH
 
-base_ormar_config = ormar.OrmarConfig(
-    database=databases.Database(DATABASE_URL),
-    metadata=sqlalchemy.MetaData(),
-    engine=sqlalchemy.create_engine(DATABASE_URL),
-)
+DB = SQLiteEngine(path=DATABASE_PATH)
 
 
-class Chat(ormar.Model):
-    ormar_config = base_ormar_config.copy(tablename="chats")
-
-    chat_id: int = ormar.Integer(primary_key=True, autoincrement=False)
+class Chat(Table, tablename="chats", db=DB):
+    chat_id = Integer(primary_key=True)
 
 
-class Article(ormar.Model):
-    ormar_config = base_ormar_config.copy(tablename="articles")
-
-    article_id: int = ormar.Integer(primary_key=True, autoincrement=False)
+class Article(Table, tablename="articles", db=DB):
+    article_id = Integer(primary_key=True)

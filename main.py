@@ -7,8 +7,6 @@ import aiohttp
 
 from src.bot import get_bot_n_dispatcher, spread_message
 from src.constants import ARTICLE_MINING_INTERVAL
-
-# from src.data_models import base_ormar_config
 from src.llm import query_summary
 from src.pages import gen_article_ids, get_article_text, log_in
 
@@ -31,9 +29,6 @@ async def periodic_miner(bot: Bot) -> str:
 
 
 async def main():
-    # base_ormar_config.metadata.drop_all(base_ormar_config.engine)
-    # base_ormar_config.metadata.create_all(base_ormar_config.engine)
-
     bot, dp = get_bot_n_dispatcher()
 
     asyncio.create_task(periodic_miner(bot))

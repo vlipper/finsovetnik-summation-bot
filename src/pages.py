@@ -70,12 +70,12 @@ async def gen_article_ids(http_session: ClientSession) -> AsyncIterator[str]:
         article_id = int(article_id[5:])
 
         # check if article_id is already in the database
-        article = await Article.objects.get_or_none(article_id=article_id)
+        article = await Article.select().where(Article.article_id == article_id).first()
         if article is not None:
             break
 
         # TODO: it is better to add article after processing it
-        await Article(article_id=article_id).save()
+        await Article.insert(Article(article_id=article_id))
 
         yield article_id
 

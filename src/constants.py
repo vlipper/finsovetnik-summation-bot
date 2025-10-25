@@ -3,7 +3,7 @@ import os
 # general
 ARTICLE_MINING_INTERVAL = 60 * 1  # 5 min
 CATCH_UP_ARTICLES = 1
-DATABASE_URL = "sqlite:///default.db"
+DATABASE_PATH = "default.sqlite"
 BOT_TOKEN = os.environ["BOT_TOKEN"]
 
 # URLs
@@ -17,7 +17,7 @@ LOGIN_DATA = {"log": os.environ["SITE_USERNAME"], "pwd": os.environ["SITE_PASSWO
 HIDDEN_LOGIN_ATTRIBUTES = ["ihcaction", "ihc_login_nonce"]
 
 # llm related
-MODEL_NAME = "gpt-4.1-nano"
+MODEL_NAME = "gpt-5-mini"
 SYSTEM_MESSAGE = """
 Ты - помощник, который генерирует краткие аннотации к заметкам из блога "Финансовый советник".
 Твоя задача - создать аннотацию размером не более 1024 символов, которая будет содержать основные мысли заметки.
