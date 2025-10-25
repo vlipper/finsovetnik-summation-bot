@@ -1,16 +1,15 @@
 [project]
 name = "finsovetnik-summation-bot"
 version = "0.1.0"
-description = "This is an telegram bot that parses website, summarizes its content with chatgpt and sends to telegram"
+description = "This is a telegram bot that parses website, summarizes content with chatgpt and sends to telegram"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = "==3.13.*"
 dependencies = [
-    "aiogram>=3.20.0.post0",
-    "aiohttp>=3.11.18",
-    "aiosqlite>=0.21.0",
-    "beautifulsoup4>=4.13.4",
-    "litellm>=1.69.0",
-    "sqlalchemy[asyncio]>=2.0.41",
+    "aiogram==3.20.*",
+    "aiohttp==3.11.*",
+    "beautifulsoup4==4.13.*",
+    "litellm==1.69.*",
+    "piccolo[sqlite]==1.29.*",
 ]
 
 [tool.ruff]

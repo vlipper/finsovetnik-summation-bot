@@ -7,12 +7,12 @@ from bs4 import BeautifulSoup, PageElement
 from src.constants import (
     ARTICLE_TEMPLATE_URL,
     ARTICLES_LIST_URL,
+    CATCH_UP_ARTICLES,
     HIDDEN_LOGIN_ATTRIBUTES,
     LOGIN_DATA,
     LOGIN_URL,
-    NUM_ARTICLES_IN_LIST,
 )
-from src.data_models import Article, AsyncSessionMaker
+from src.data_models import Article
 
 
 def _get_tag_attribute(
@@ -55,16 +55,13 @@ async def log_in(http_session: ClientSession) -> ClientSession:
     return http_session
 
 
-async def gen_article_ids(
-    http_session: ClientSession,
-    db_session_maker: AsyncSessionMaker,
-) -> AsyncIterator[str]:
+async def gen_article_ids(http_session: ClientSession) -> AsyncIterator[str]:
     async with http_session.get(ARTICLES_LIST_URL) as response:
         response.raise_for_status()
         content = await response.text()
 
     page_element = BeautifulSoup(content, "html.parser")
-    for _ in range(NUM_ARTICLES_IN_LIST):
+    for _ in range(CATCH_UP_ARTICLES):
         page_element, article_id = _get_tag_attribute(page_element, "article", "id", id=True)
 
         # validate article id with regex
@@ -73,13 +70,12 @@ async def gen_article_ids(
         article_id = int(article_id[5:])
 
         # check if article_id is already in the database
-        async with db_session_maker.begin() as db_session:
-            article_exists = await db_session.get(Article, article_id) is not None
-            if article_exists:
-                break
+        article = await Article.select().where(Article.article_id == article_id).first()
+        if article is not None:
+            break
 
-            # TODO: it is better to add article after processing it
-            db_session.add(Article(article_id=article_id))
+        # TODO: it is better to add article after processing it
+        await Article.insert(Article(article_id=article_id))
 
         yield article_id
 

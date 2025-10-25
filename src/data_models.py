@@ -1,29 +1,15 @@
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from piccolo.columns import Integer
+from piccolo.engine import SQLiteEngine
+from piccolo.table import Table
 
-from src.constants import DATABASE_URL
+from src.constants import DATABASE_PATH
 
-AsyncSessionMaker = async_sessionmaker[AsyncSession]
-
-
-class Database(DeclarativeBase):
-    pass
+DB = SQLiteEngine(path=DATABASE_PATH)
 
 
-class Chat(Database):
-    __tablename__ = "chats"
-
-    chat_id: Mapped[int] = mapped_column(primary_key=True)
+class Chat(Table, tablename="chats", db=DB):
+    chat_id = Integer(primary_key=True)
 
 
-class Article(Database):
-    __tablename__ = "articles"
-
-    article_id: Mapped[int] = mapped_column(primary_key=True, index=True, unique=True)
-
-
-def create_db_engine_n_sessionmaker() -> tuple[AsyncEngine, AsyncSessionMaker]:
-    engine = create_async_engine(DATABASE_URL, echo=True)
-    session_maker = async_sessionmaker(engine)
-
-    return engine, session_maker
+class Article(Table, tablename="articles", db=DB):
+    article_id = Integer(primary_key=True)
