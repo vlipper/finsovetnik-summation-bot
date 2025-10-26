@@ -1,4 +1,5 @@
 import re
+from datetime import datetime, timezone
 from typing import AsyncIterator
 
 from aiohttp import ClientSession
@@ -74,16 +75,13 @@ async def gen_article_ids(http_session: ClientSession) -> AsyncIterator[str]:
         if article is not None:
             break
 
-        # TODO: it is better to add article after processing it
-        await Article.insert(Article(article_id=article_id))
-
         yield article_id
 
 
-async def get_article_text(
+async def get_article(
     http_session: ClientSession,
     article_id: str,
-) -> str:
+) -> Article:
     article_url = ARTICLE_TEMPLATE_URL.format(article_id)
     async with http_session.get(article_url) as response:
         response.raise_for_status()
@@ -91,6 +89,12 @@ async def get_article_text(
 
     soup = BeautifulSoup(content, "html.parser")
     content_tag = soup.find(attrs={"class": "entry-content"})
-    article_text = content_tag.get_text("\n", strip=True)
+    text = content_tag.get_text("\n", strip=True)
 
-    return article_text
+    updated_tag = soup.find("time", attrs={"class": "updated"})
+    updated_dttm = datetime.fromisoformat(updated_tag["datetime"]).astimezone(timezone.utc)
+
+    article = Article(article_id=int(article_id), updated_at=updated_dttm)
+    article.text = text  # TODO: shitty trick
+
+    return article

@@ -23,7 +23,7 @@ async def start_handler(message: Message) -> None:
     chat = await Chat.select().where(Chat.chat_id == message.chat.id).first()
 
     if chat is None:
-        await Chat.insert(Chat(chat_id=message.chat.id))
+        await Chat(chat_id=message.chat.id).save()
         await message.answer("You are now subscribed to updates")
     else:
         await message.answer("You are already subscribed to updates")
