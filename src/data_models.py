@@ -1,4 +1,4 @@
-from piccolo.columns import Integer
+from piccolo.columns import Integer, Timestamp
 from piccolo.engine import SQLiteEngine
 from piccolo.table import Table
 
@@ -13,3 +13,6 @@ class Chat(Table, tablename="chats", db=DB):
 
 class Article(Table, tablename="articles", db=DB):
     article_id = Integer(primary_key=True)
+    updated_at = Timestamp(required=True)
+
+    text: str = ""

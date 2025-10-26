@@ -8,7 +8,7 @@ import aiohttp
 from src.bot import get_bot_n_dispatcher, spread_message
 from src.constants import ARTICLE_MINING_INTERVAL
 from src.llm import query_summary
-from src.pages import gen_article_ids, get_article_text, log_in
+from src.pages import gen_article_ids, get_article, log_in
 
 if TYPE_CHECKING:
     from aiogram import Bot
@@ -21,9 +21,10 @@ async def periodic_miner(bot: Bot) -> str:
 
             # TODO: make synchronized for loop to define new articles and then use async to process them
             async for article_id in gen_article_ids(http_session):
-                article_text = await get_article_text(http_session, article_id)
-                summary_text = await query_summary(article_text)
+                article = await get_article(http_session, article_id)
+                summary_text = await query_summary(article.text)
                 await spread_message(bot, summary_text)
+                await article.save()
 
         await asyncio.sleep(ARTICLE_MINING_INTERVAL)
 
