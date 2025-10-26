@@ -1,7 +1,7 @@
 import os
 
 # general
-ARTICLE_MINING_INTERVAL = 60 * 1  # 5 min
+ARTICLE_MINING_INTERVAL = 60 * 5  # 5 min
 CATCH_UP_ARTICLES = 1
 DATABASE_PATH = "./db/prod.sqlite"
 BOT_TOKEN = os.environ["BOT_TOKEN"]
