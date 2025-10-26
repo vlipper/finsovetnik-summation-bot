@@ -1,0 +1,9 @@
+name: finsovetnik-summation
+
+services:
+  bot:
+    build: .
+    volumes:
+      - ./db:/app/db
+    env_file:
+      - .env
