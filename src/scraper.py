@@ -5,7 +5,8 @@ from typing import AsyncIterator
 from aiohttp import ClientSession
 from bs4 import BeautifulSoup, PageElement
 
-from src.constants import (
+from src.data_models import Article
+from src.settings import (
     ARTICLE_TEMPLATE_URL,
     ARTICLES_LIST_URL,
     CATCH_UP_ARTICLES,
@@ -13,7 +14,6 @@ from src.constants import (
     LOGIN_DATA,
     LOGIN_URL,
 )
-from src.data_models import Article
 
 
 def _get_tag_attribute(
