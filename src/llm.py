@@ -1,6 +1,6 @@
 from litellm import acompletion
 
-from src.constants import MODEL_NAME, SYSTEM_MESSAGE
+from src.settings import MODEL_NAME, SYSTEM_MESSAGE
 
 
 async def query_summary(text: str) -> str:
