@@ -25,6 +25,6 @@ async def spread_message(
     message: str,
 ) -> None:
     chats = await Chat.select(Chat.chat_id)
-    for chat in chats:
-        asyncio.create_task(bot.send_message(chat_id=chat["chat_id"], text=message))
-        # parse_mode="MarkdownV2",
+    tasks = [bot.send_message(chat["chat_id"], text=message) for chat in chats]  # parse_mode="MarkdownV2",
+    if tasks:
+        await asyncio.gather(*tasks)
