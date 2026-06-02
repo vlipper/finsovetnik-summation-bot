@@ -8,7 +8,7 @@ dependencies = [
     "aiogram==3.20.*",
     "aiohttp==3.11.*",
     "beautifulsoup4==4.13.*",
-    "litellm==1.69.*",
+    "litellm==1.87.*",
     "piccolo[sqlite]==1.29.*",
 ]
 
