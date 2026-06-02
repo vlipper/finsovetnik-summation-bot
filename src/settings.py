@@ -22,7 +22,7 @@ LOGIN_DATA = {"log": os.environ["SITE_USERNAME"], "pwd": os.environ["SITE_PASSWO
 HIDDEN_LOGIN_ATTRIBUTES = ["ihcaction", "ihc_login_nonce"]
 
 # llm
-MODEL_NAME = "gpt-5-mini"
+MODEL_NAME = "gemini/gemini-3.5-flash"
 SYSTEM_MESSAGE = """
 Ты - помощник, который генерирует краткие аннотации к заметкам из блога "Финансовый советник".
 Твоя задача - создать аннотацию размером не более 1024 символов, которая будет содержать основные мысли или идеи заметки.
