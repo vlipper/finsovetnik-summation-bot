@@ -27,6 +27,6 @@ def setup_logging(level: int = logging.INFO) -> None:
     root = logging.getLogger()
     for lg in root.manager.loggerDict.values():
         if isinstance(lg, logging.Logger) and lg is not root and lg.handlers:
-            module_logger.debug(f"Clearing handlers for logger: {lg.name}")
+            module_logger.info(f"Clearing handlers for logger: {lg.name}")
             lg.handlers.clear()
-            # logger.propagate = True  # TODO: in case of some loggers not propagating
+            lg.propagate = True
