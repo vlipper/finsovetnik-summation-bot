@@ -1,16 +1,17 @@
-name: finsovetnik-summation
+name: finsovetnik-summation-bot
 
 services:
-  bot:
+  app:
     build: .
+    image: ghcr.io/vlipper/finsovetnik-summation-bot:latest
     volumes:
-      - ./db:/app/db
+      - app-data:/app/db
     env_file:
       - .env
     logging:
       driver: json-file
       options:
-        max-size: 512m
+        max-size: 256m
         max-file: 2
     depends_on:
       - victorialogs
@@ -25,7 +26,7 @@ services:
     ports:
       - "127.0.0.1:9428:9428"
     volumes:
-      - ./vlogs-data:/vlogs-data
+      - vlogs-data:/vlogs-data
     mem_limit: 350m
     restart: unless-stopped
 
@@ -34,8 +35,13 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./vector.yaml:/etc/vector/vector.yaml:ro
-      - ./vector-data:/var/lib/vector
+      - vector-data:/var/lib/vector
     mem_limit: 128m
     depends_on:
       - victorialogs
     restart: unless-stopped
+
+volumes:
+  app-data:
+  vlogs-data:
+  vector-data:

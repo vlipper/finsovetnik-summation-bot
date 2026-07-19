@@ -4,7 +4,7 @@ sources:
   docker:
     type: docker_logs
     include_containers:
-      - finsovetnik-summation-bot
+      - finsovetnik-summation-bot-app
 
 sinks:
   vlogs:
