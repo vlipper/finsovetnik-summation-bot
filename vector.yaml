@@ -1,0 +1,23 @@
+data_dir: /var/lib/vector
+
+sources:
+  docker:
+    type: docker_logs
+    include_containers:
+      - finsovetnik-summation-bot
+
+sinks:
+  vlogs:
+    inputs:
+      - docker
+    type: elasticsearch
+    endpoints:
+      - http://victorialogs:9428/insert/elasticsearch/
+    api_version: v8
+    compression: gzip
+    healthcheck:
+      enabled: false
+    query:
+      _msg_field: message
+      _time_field: time
+      _stream_fields: container_name

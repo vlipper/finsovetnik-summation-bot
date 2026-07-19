@@ -7,3 +7,35 @@ services:
       - ./db:/app/db
     env_file:
       - .env
+    logging:
+      driver: json-file
+      options:
+        max-size: 512m
+        max-file: 2
+    depends_on:
+      - victorialogs
+    restart: unless-stopped
+
+  victorialogs:
+    image: victoriametrics/victoria-logs:v1.51.0
+    command:
+      - -storageDataPath=/vlogs-data
+      - -retentionPeriod=14d
+      - -memory.allowedBytes=256MB
+    ports:
+      - "127.0.0.1:9428:9428"
+    volumes:
+      - ./vlogs-data:/vlogs-data
+    mem_limit: 350m
+    restart: unless-stopped
+
+  vector:
+    image: timberio/vector:0.56.0-alpine
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./vector.yaml:/etc/vector/vector.yaml:ro
+      - ./vector-data:/var/lib/vector
+    mem_limit: 128m
+    depends_on:
+      - victorialogs
+    restart: unless-stopped
