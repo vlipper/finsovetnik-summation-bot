@@ -2,6 +2,7 @@ import asyncio
 import logging
 
 import aiohttp
+import litellm
 from aiogram import Bot
 
 from src.bot import dp, spread_message
@@ -10,6 +11,7 @@ from src.logging_config import setup_logging
 from src.scraper import gen_article_ids, get_article, log_in
 from src.settings import ARTICLE_MINING_INTERVAL, BOT_POOLING_INTERVAL, BOT_TOKEN
 
+litellm.suppress_debug_info = True  # type: ignore[ty:invalid-assignment]
 setup_logging()
 logger = logging.getLogger(__name__)
 
