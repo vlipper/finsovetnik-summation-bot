@@ -1,6 +1,6 @@
 import re
-from datetime import datetime, timezone
-from typing import AsyncIterator
+from collections.abc import AsyncIterator
+from datetime import UTC, datetime
 
 from aiohttp import ClientSession
 from bs4 import BeautifulSoup, PageElement
@@ -88,13 +88,11 @@ async def get_article(
         content = await response.text()
 
     soup = BeautifulSoup(content, "html.parser")
-    content_tag = soup.find(attrs={"class": "entry-content"})
-    text = content_tag.get_text("\n", strip=True)
-
+    article_html = str(soup.find("article"))
     updated_tag = soup.find("time", attrs={"class": "updated"})
-    updated_dttm = datetime.fromisoformat(updated_tag["datetime"]).astimezone(timezone.utc)
+    updated_dttm = datetime.fromisoformat(updated_tag["datetime"]).astimezone(UTC)
 
     article = Article(article_id=int(article_id), updated_at=updated_dttm)
-    article.text = text  # TODO: shitty trick
+    article.text = article_html  # TODO: shitty trick
 
     return article
