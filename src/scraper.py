@@ -88,11 +88,13 @@ async def get_article(
         content = await response.text()
 
     soup = BeautifulSoup(content, "html.parser")
-    article_html = str(soup.find("article"))
-    updated_tag = soup.find("time", attrs={"class": "updated"})
-    updated_dttm = datetime.fromisoformat(updated_tag["datetime"]).astimezone(UTC)
+    article_tag = soup.select_one("article")
+    posted_dttm = article_tag.select_one("header [class=entry-date]")["datetime"]
+    updated_dttm = article_tag.select_one("header [class=updated]")["datetime"]
+    posted_dttm = datetime.fromisoformat(posted_dttm).astimezone(UTC)
+    updated_dttm = datetime.fromisoformat(updated_dttm).astimezone(UTC)
 
-    article = Article(article_id=int(article_id), updated_at=updated_dttm)
-    article.text = article_html  # TODO: shitty trick
+    article = Article(article_id=int(article_id), posted_at=posted_dttm, updated_at=updated_dttm)
+    article.text = str(article_tag)  # TODO: shitty trick
 
     return article
