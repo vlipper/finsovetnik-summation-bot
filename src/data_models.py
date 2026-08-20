@@ -13,6 +13,7 @@ class Chat(Table, tablename="chats", db=DB):
 
 class Article(Table, tablename="articles", db=DB):
     article_id = Integer(primary_key=True)
+    posted_at = Timestamp(required=True)
     updated_at = Timestamp(required=True)
 
     text: str = ""

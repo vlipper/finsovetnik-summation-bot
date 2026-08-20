@@ -3,7 +3,7 @@ from collections.abc import AsyncIterator
 from datetime import UTC, datetime
 
 from aiohttp import ClientSession
-from bs4 import BeautifulSoup, PageElement
+from bs4 import BeautifulSoup, PageElement, Tag
 
 from src.data_models import Article
 from src.settings import (
@@ -14,6 +14,31 @@ from src.settings import (
     LOGIN_DATA,
     LOGIN_URL,
 )
+
+
+def _get_tag(
+    container: BeautifulSoup | Tag,
+    selector: str,
+) -> Tag:
+    tag = container.select_one(selector)
+    if tag is None:
+        raise ValueError(f"There is no element matched selector: '{selector}'")
+
+    return tag
+
+
+def _get_attr(
+    tag: Tag,
+    attr_name: str,
+    selector: str | None = None,
+) -> str:
+    if selector:
+        tag = _get_tag(tag, selector)
+    attr = tag.get(attr_name)
+    if not isinstance(attr, str):
+        raise ValueError(f"Tag '{tag.name}' does not have attribute '{attr_name}'")  # noqa: TRY004
+
+    return attr
 
 
 def _get_tag_attribute(
@@ -44,7 +69,8 @@ async def log_in(http_session: ClientSession) -> ClientSession:
     # get hidden input attributes for login
     soup = BeautifulSoup(content, "html.parser")
     filled_attributes = {
-        attr: _get_tag_attribute(soup, "input", "value", name=attr)[1] for attr in HIDDEN_LOGIN_ATTRIBUTES
+        attr: _get_attr(soup, selector=f"input[name={attr}]", attr_name="value")
+        for attr in HIDDEN_LOGIN_ATTRIBUTES
     }
 
     # send POST request to login
@@ -88,10 +114,10 @@ async def get_article(
         content = await response.text()
 
     soup = BeautifulSoup(content, "html.parser")
-    article_tag = soup.select_one("article")
-    posted_dttm = article_tag.select_one("header [class=entry-date]")["datetime"]
-    updated_dttm = article_tag.select_one("header [class=updated]")["datetime"]
+    article_tag = _get_tag(soup, selector="article")
+    posted_dttm = _get_attr(article_tag, selector="header [class=entry-date]", attr_name="datetime")
     posted_dttm = datetime.fromisoformat(posted_dttm).astimezone(UTC)
+    updated_dttm = _get_attr(article_tag, selector="header [class=updated]", attr_name="datetime")
     updated_dttm = datetime.fromisoformat(updated_dttm).astimezone(UTC)
 
     article = Article(article_id=int(article_id), posted_at=posted_dttm, updated_at=updated_dttm)
