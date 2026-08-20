@@ -1,9 +1,10 @@
 import re
 from collections.abc import AsyncIterator
 from datetime import UTC, datetime
+from logging import getLogger
 
 from aiohttp import ClientSession
-from bs4 import BeautifulSoup, PageElement, Tag
+from bs4 import BeautifulSoup, Tag
 
 from src.data_models import Article
 from src.settings import (
@@ -15,17 +16,34 @@ from src.settings import (
     LOGIN_URL,
 )
 
+logger = getLogger(__name__)
+
+
+def _get_tags(
+    container: BeautifulSoup | Tag,
+    selector: str,
+) -> list[Tag]:
+    tags = container.select(selector)
+    if len(tags) == 0:
+        raise ValueError(f"There are no tags matched selector: '{selector}'")
+
+    return tags
+
 
 def _get_tag(
     container: BeautifulSoup | Tag,
     selector: str,
+    take_first: bool = True,
 ) -> Tag:
-    tag = container.select_one(selector)
-    if tag is None:
-        raise ValueError(f"There is no element matched selector: '{selector}'")
+    tags = _get_tags(container, selector)
+    if len(tags) > 1:
+        msg = f"More than one tag matched selector: '{selector}'"
+        if take_first:
+            logger.info(f"{msg}. Taking the first one")
+        else:
+            raise ValueError(msg)
 
-    return tag
-
+    return tags[0]
 
 def _get_attr(
     tag: Tag,
@@ -41,32 +59,11 @@ def _get_attr(
     return attr
 
 
-def _get_tag_attribute(
-    page_element: PageElement,
-    tag_name: str,
-    attribute: str,
-    **filter_attributes: dict[str, str],
-) -> tuple[PageElement, str]:
-    tag = page_element.find_next(tag_name, filter_attributes)
-    if tag is None:  # TODO: shitty trick, but I don't know how to do it better
-        tag = page_element.find(tag_name, filter_attributes)
-
-    if tag is None:
-        raise ValueError(f"Tag '{tag_name}' is not found")
-
-    value = tag.get(attribute)
-    if value is None:
-        raise ValueError(f"Tag '{tag_name}' does not have attribute '{attribute}'")
-
-    return tag, value
-
-
 async def log_in(http_session: ClientSession) -> ClientSession:
+    # get hidden input attributes for login
     async with http_session.get(LOGIN_URL) as response:
         response.raise_for_status()
         content = await response.text()
-
-    # get hidden input attributes for login
     soup = BeautifulSoup(content, "html.parser")
     filled_attributes = {
         attr: _get_attr(soup, selector=f"input[name={attr}]", attr_name="value")
@@ -82,21 +79,20 @@ async def log_in(http_session: ClientSession) -> ClientSession:
     return http_session
 
 
-async def gen_article_ids(http_session: ClientSession) -> AsyncIterator[str]:
+async def gen_article_ids(http_session: ClientSession) -> AsyncIterator[int]:
     async with http_session.get(ARTICLES_LIST_URL) as response:
         response.raise_for_status()
         content = await response.text()
+    soup = BeautifulSoup(content, "html.parser")
+    article_ids = [t.get("id") for t in _get_tags(soup, "article[id]")]
+    if len(article_ids) < CATCH_UP_ARTICLES:
+        logger.warning(f"Found {len(article_ids)} articles, while {CATCH_UP_ARTICLES} expected")
 
-    page_element = BeautifulSoup(content, "html.parser")
-    for _ in range(CATCH_UP_ARTICLES):
-        page_element, article_id = _get_tag_attribute(page_element, "article", "id", id=True)
-
-        # validate article id with regex
-        if not re.fullmatch(r"^post-\d+$", article_id):
+    for article_id in article_ids[:CATCH_UP_ARTICLES]:
+        if not isinstance(article_id, str) or not re.fullmatch(r"^post-\d+$", article_id):
             raise ValueError(f"Article id '{article_id}' is not valid")
         article_id = int(article_id[5:])
-
-        # check if article_id is already in the database
+        # break if article is already in database
         article = await Article.select().where(Article.article_id == article_id).first()
         if article is not None:
             break
@@ -106,7 +102,7 @@ async def gen_article_ids(http_session: ClientSession) -> AsyncIterator[str]:
 
 async def get_article(
     http_session: ClientSession,
-    article_id: str,
+    article_id: int,
 ) -> Article:
     article_url = ARTICLE_TEMPLATE_URL.format(article_id)
     async with http_session.get(article_url) as response:
