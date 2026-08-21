@@ -1,4 +1,4 @@
-from piccolo.columns import Integer, Timestamp
+from piccolo.columns import Integer, Text, Timestamp
 from piccolo.engine import SQLiteEngine
 from piccolo.table import Table
 
@@ -15,5 +15,4 @@ class Article(Table, tablename="articles", db=DB):
     article_id = Integer(primary_key=True)
     posted_at = Timestamp(required=True)
     updated_at = Timestamp(required=True)
-
-    text: str = ""
+    content_tag = Text(required=True)

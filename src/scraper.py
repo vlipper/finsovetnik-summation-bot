@@ -93,8 +93,7 @@ async def gen_article_ids(http_session: ClientSession) -> AsyncIterator[int]:
             raise ValueError(f"Article id '{article_id}' is not valid")
         article_id = int(article_id[5:])
         # break if article is already in database
-        article = await Article.select().where(Article.article_id == article_id).first()
-        if article is not None:
+        if await Article.exists().where(Article.article_id == article_id):
             break
 
         yield article_id
@@ -111,12 +110,21 @@ async def get_article(
 
     soup = BeautifulSoup(content, "html.parser")
     article_tag = _get_tag(soup, selector="article")
-    posted_dttm = _get_attr(article_tag, selector="header [class=entry-date]", attr_name="datetime")
+    # get attributes from article's header
+    header_tag = _get_tag(article_tag, selector="header")
+    posted_dttm = _get_attr(header_tag, selector="[class=entry-date]", attr_name="datetime")
     posted_dttm = datetime.fromisoformat(posted_dttm).astimezone(UTC)
-    updated_dttm = _get_attr(article_tag, selector="header [class=updated]", attr_name="datetime")
+    updated_dttm = _get_attr(header_tag, selector="[class=updated]", attr_name="datetime")
     updated_dttm = datetime.fromisoformat(updated_dttm).astimezone(UTC)
+    # remove like button from article's content
+    content_tag = _get_tag(article_tag, selector="[class=entry-content]")
+    _get_tag(content_tag, selector="[class=llas-like-button-active]").decompose()
 
-    article = Article(article_id=int(article_id), posted_at=posted_dttm, updated_at=updated_dttm)
-    article.text = str(article_tag)  # TODO: shitty trick
+    article = Article(
+        article_id=int(article_id),
+        posted_at=posted_dttm,
+        updated_at=updated_dttm,
+        content_tag=str(content_tag),
+    )
 
     return article

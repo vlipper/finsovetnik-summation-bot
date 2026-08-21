@@ -35,7 +35,7 @@ async def periodic_scrap() -> None:
                 # TODO: make synchronized for loop to define new articles and then use async to process them
                 async for article_id in gen_article_ids(http_session):
                     article = await get_article(http_session, article_id)
-                    summary_text = await query_summary(article.text)
+                    summary_text = await query_summary(article.content_tag)
                     await spread_message(bot, summary_text)
                     await article.save()
         except Exception:
