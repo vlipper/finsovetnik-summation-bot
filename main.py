@@ -6,9 +6,10 @@ import litellm
 from aiogram import Bot
 
 from src.bot import dp, spread_message
+from src.data_models import Message
 from src.llm import query_summary
 from src.logging_config import setup_logging
-from src.scraper import gen_article_ids, get_article, log_in
+from src.scraper import extract_article_content, gen_article_headers, log_in
 from src.settings import ARTICLE_MINING_INTERVAL, BOT_POOLING_INTERVAL, BOT_TOKEN
 
 litellm.suppress_debug_info = True  # type: ignore[ty:invalid-assignment]
@@ -33,11 +34,15 @@ async def periodic_scrap() -> None:
                 http_session = await log_in(http_session)
 
                 # TODO: make synchronized for loop to define new articles and then use async to process them
-                async for article_id in gen_article_ids(http_session):
-                    article = await get_article(http_session, article_id)
-                    summary_text = await query_summary(article.text)
-                    await spread_message(bot, summary_text)
+                async for article_header in gen_article_headers(http_session):
+                    html = await article_header.fetch_html(http_session)
+                    content = extract_article_content(html)
+                    summary = await query_summary(content)
+                    article = article_header.to_article(content, summary)
                     await article.save()
+                    messages = await spread_message(bot, article)
+                    if messages:
+                        await Message.insert(*messages)
         except Exception:
             logger.exception("Error in periodic_scrap")
         await asyncio.sleep(ARTICLE_MINING_INTERVAL)

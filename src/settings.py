@@ -9,7 +9,7 @@ BOT_POOLING_INTERVAL = 60  # 1 min
 
 # scraper
 ARTICLE_MINING_INTERVAL = 60 * 5  # 5 min
-CATCH_UP_ARTICLES = 1
+CATCH_UP_ARTICLES = 5
 
 # URLs
 ROOT_URL = "https://finsovetniksub.com/"

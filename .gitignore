@@ -1,6 +1,7 @@
 # directories
 .venv/
 __pycache__/
+tmp/
 
 # files
 *.env
