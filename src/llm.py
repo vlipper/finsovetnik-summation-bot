@@ -8,7 +8,7 @@ async def query_summary(text: str) -> str:
         {"role": "system", "content": SYSTEM_MESSAGE},
         {"role": "user", "content": text},
     ]
-    response = await acompletion(MODEL_NAME, messages, extra_body={"reasoning": {"effort": "low"}})
+    response = await acompletion(MODEL_NAME, messages, extra_body={"reasoning": {"effort": "none"}})
     response_content = response["choices"][0]["message"]["content"]
 
     return response_content
