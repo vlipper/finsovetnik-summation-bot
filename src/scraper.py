@@ -117,8 +117,6 @@ async def gen_article_headers(http_session: ClientSession) -> AsyncIterator["Art
 def extract_article_content(html: str) -> str:
     soup = BeautifulSoup(html, "html.parser")
     content_tag = _get_tag(soup, selector="article [class=entry-content]")
-    # remove like button from article's content
-    _get_tag(content_tag, selector="[class=llas-like-button-active]").decompose()
 
     return str(content_tag)
 
